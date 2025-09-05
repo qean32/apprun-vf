@@ -1,4 +1,4 @@
-module zxc
+module apprun-vf
 
 go 1.25.0
 
