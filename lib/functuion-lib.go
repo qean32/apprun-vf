@@ -1,9 +1,10 @@
-package lib
+package main
 
 import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 )
 
 func read(path string) ([]string, error) {
@@ -33,4 +34,18 @@ func write(write []string, path string) error {
 		fmt.Fprintln(w, line)
 	}
 	return w.Flush()
+}
+
+func voidFn() {
+	fmt.Println("")
+}
+
+func apprun() {
+	cmd := exec.Command("")
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Ошибка при запуске команды:", err)
+		return
+	}
+	fmt.Println("Команда успешно выполнена")
 }
