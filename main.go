@@ -1,32 +1,104 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"image/color"
+	"os"
+	"os/exec"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	// "lib"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+
+	"fyne.io/fyne/v2/widget"
 )
 
+const YBtn = 100
+
 func main() {
-	a := app.New()
-	w := a.NewWindow("apprun-vf")
-	w.Resize(fyne.NewSize(1200, 800))
-	w.SetFixedSize(true)
+	btnSize := [2]float32{120, 120}
+	app := app.New()
+	window := app.NewWindow("apprun-vf")
+	window.Resize(fyne.NewSize(900, 600))
+	window.SetFixedSize(true)
 
-	// ____________________________________ place to create ____________________________________ //
+	// ------------------------------------------------- //
+	btnGame := Button("", "./public/game#1.svg", VoidFn, btnSize, [2]float32{100, YBtn})
+	btnGame_ := Button("", "./public/game#2.svg", VoidFn, btnSize, [2]float32{300, YBtn})
+	btnWork := Button("", "./public/work.svg", VoidFn, btnSize, [2]float32{440, YBtn})
+	btnRelax := Button("", "./public/relax.svg", VoidFn, btnSize, [2]float32{660, YBtn})
+	text := canvas.NewText("", color.Opaque)
+	// ------------------------------------------------- //
+	text.Move(fyne.NewPos(200, 300))
 
-	// ____________________________________ place to create ____________________________________ //
-
-	set := func(array []fyne.CanvasObject, func_ func(fyne.CanvasObject)) {
-		for i := 0; i < len(array); i++ {
-			func_(array[i])
-		}
-	}
-	itemArray := []fyne.CanvasObject{
-		// button("button", "./public/logo.svg", func() {}, [2]float32{500, 500})
-	}
-	set(itemArray, w.SetContent)
-
+	window.SetContent(container.NewWithoutLayout(
+		btnGame, btnGame_, btnRelax, btnWork,
+		text,
+	))
 	icon, _ := fyne.LoadResourceFromPath("./public/logo-white.svg")
-	w.SetIcon(icon)
-	w.ShowAndRun()
+	window.SetIcon(icon)
+	window.ShowAndRun()
+}
+
+func Button(placeHolder string, imgPath string, fn func(), size [2]float32, position [2]float32) *fyne.Container {
+	btn := widget.NewButton(placeHolder, fn)
+	img := canvas.NewImageFromFile(imgPath)
+	img.Resize(fyne.NewSize(size[0], size[1]))
+	container := container.NewWithoutLayout(
+		btn,
+		img,
+	)
+	btn.Resize(fyne.NewSize(size[0], size[1]))
+	container.Move(fyne.NewPos(position[0], position[1]))
+
+	return container
+}
+
+func VoidBlock() *fyne.Container {
+	return container.NewPadded()
+}
+
+func Read(path string) ([]string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var write []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		write = append(write, scanner.Text())
+	}
+	return write, scanner.Err()
+}
+
+func Write(write []string, path string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	w := bufio.NewWriter(file)
+	for _, line := range write {
+		fmt.Fprintln(w, line)
+	}
+	return w.Flush()
+}
+
+func VoidFn() {
+	fmt.Println("--------")
+}
+
+func Apprun() {
+	cmd := exec.Command("")
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Ошибка при запуске команды:", err)
+		return
+	}
+	fmt.Println("Команда успешно выполнена")
 }

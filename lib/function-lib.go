@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 	"os/exec"
 )
 
-func read(path string) ([]string, error) {
+func Read(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func read(path string) ([]string, error) {
 	return write, scanner.Err()
 }
 
-func write(write []string, path string) error {
+func Write(write []string, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err
@@ -36,11 +36,11 @@ func write(write []string, path string) error {
 	return w.Flush()
 }
 
-func voidFn() {
+func VoidFn() {
 	fmt.Println("")
 }
 
-func apprun() {
+func Apprun() {
 	cmd := exec.Command("")
 	err := cmd.Run()
 	if err != nil {
