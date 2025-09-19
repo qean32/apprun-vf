@@ -20,6 +20,7 @@ const YBtn = 48
 func main() {
 	btnSize := [2]float32{120, 120}
 	app := app.New()
+	// Apprun(`C:\Users\zxccurced\AppData\Local\Discord\app-1.0.9209\Discord.exe`)
 	window := app.NewWindow("apprun-vf")
 	window.Resize(fyne.NewSize(900, 600))
 	window.SetFixedSize(true)
@@ -145,13 +146,17 @@ func Write(write []string, path string) error {
 }
 
 func Apprun(path string) {
-	// primePath := strings.Replace(strings.Replace(path, `\`, "/", -1), `"`, `'`, -1)
-	cmd := exec.Command(`start "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe"`)
+	cmd := exec.Command(path)
 	err := cmd.Run()
 	if err != nil {
 		fmt.Println("Ошибка при запуске команды:", err)
-		fmt.Println(path)
 		return
 	}
-	fmt.Println("Команда успешно выполнена")
 }
+
+// cmd := exec.Command("CMD.exe", "/C", "D:/Desktop/zapret-discord-youtube-1.8.4/general(ALT2).bat")
+// 	err := cmd.Run()
+// 	if err != nil {
+// 		fmt.Println("Ошибка при запуске команды:", err)
+// 		return
+// 	}

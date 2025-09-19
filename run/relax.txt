@@ -1,3 +1,1 @@
-'D:\Desktop\zapret-discord-youtube-1.8.4\general.bat'
-`C:\Users\zxccurced\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Discord Inc\Discord`
-"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
+CMD.exe", "/C", "D:/Desktop/zapret-discord-youtube-1.8.4/general(ALT2).bat
