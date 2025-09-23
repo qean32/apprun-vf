@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"fyne.io/fyne/v2"
@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func button(placeHolder string, imgPath string, fn func(), size [2]float32) *fyne.Container {
+func Button(placeHolder string, imgPath string, fn func(), size [2]float32) *fyne.Container {
 	btn := widget.NewButton(placeHolder, func() {})
 	img := canvas.NewImageFromFile(imgPath)
 	img.Resize(fyne.NewSize(100, 100))

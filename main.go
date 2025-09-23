@@ -1,32 +1,183 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"os/exec"
+	"strings"
+
+	// "strings"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"lib"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+
+	"fyne.io/fyne/v2/widget"
 )
 
+const YBtn = 48
+
 func main() {
-	a := app.New()
-	w := a.NewWindow("apprun-vf")
-	w.Resize(fyne.NewSize(1200, 800))
-	w.SetFixedSize(true)
+	btnSize := [2]float32{120, 120}
+	app := app.New()
+	window := app.NewWindow("apprun-vf")
+	window.Resize(fyne.NewSize(900, 600))
+	window.SetFixedSize(true)
+	input := textEntery([2]float32{450, 250}, [2]float32{86, 288})
+	currentPath := "./run/relax.txt"
+	selectFunction := func(path string) {
+		currentPath = path
+		content, err := os.ReadFile(path)
+		if err != nil {
+		}
+		input.Disable()
+		input.SetText(string(content))
+		fmt.Println(currentPath)
+	}
+	disableInput := func(path string) {
+		input.Enable()
+	}
 
-	// ____________________________________ place to create ____________________________________ //
+	// ------------------------------------------------- //
 
-	// ____________________________________ place to create ____________________________________ //
+	btnSave := button("Сохранить", "", selectFunction, "", [2]float32{120, 40}, [2]float32{86, 214})
+	btnChange := button("Изменить", "", disableInput, "", [2]float32{120, 40}, [2]float32{226, 214})
+	btnRun := button_("Запустить", "", globalAppRun, currentPath, window, [2]float32{120, 40}, [2]float32{689, 499})
 
-	set := func(array []fyne.CanvasObject, func_ func(fyne.CanvasObject)) {
-		for i := 0; i < len(array); i++ {
-			func_(array[i])
+	btnGame := button("", "./public/game#1.svg", selectFunction, "./run/game#1.txt", btnSize, [2]float32{86, YBtn})
+	btnGame_ := button("", "./public/game#2.svg", selectFunction, "./run/game#2.txt", btnSize, [2]float32{251, YBtn})
+	btnWork := button("", "./public/work.svg", selectFunction, "./run/work.txt", btnSize, [2]float32{416, YBtn})
+	btnRelax := button("", "./public/relax.svg", selectFunction, "./run/relax.txt", btnSize, [2]float32{581, YBtn})
+	inputExample := textEntery([2]float32{245, 180}, [2]float32{569, 288})
+
+	// ------------------------------------------------- //
+
+	content, err := os.ReadFile("./run/example.txt")
+	if err != nil {
+	}
+	inputExample.SetText(string(content))
+	input.Disable()
+	inputExample.Disable()
+	contentPrime, err := os.ReadFile(currentPath)
+	if err != nil {
+	}
+	input.SetText(string(contentPrime))
+
+	window.SetContent(container.NewWithoutLayout(
+		btnGame,
+		btnGame_,
+		btnRelax,
+		btnWork,
+		input,
+		inputExample,
+		btnSave,
+		btnChange,
+		btnRun,
+	))
+	icon, _ := fyne.LoadResourceFromPath("./public/logo-white.svg")
+	window.SetIcon(icon)
+	window.ShowAndRun()
+}
+
+func globalAppRun(path string, window fyne.Window) {
+	array, err := read(path)
+	if err != nil {
+	}
+
+	for _, path_ := range array {
+		appRun(path_)
+	}
+	fmt.Println("end")
+	window.Close()
+}
+
+func button_(placeHolder string, imgPath string, fn func(path string, window fyne.Window), path string, window fyne.Window, size [2]float32, position [2]float32) *fyne.Container {
+	btn := widget.NewButton(placeHolder, func() { fn(path, window) })
+	img := canvas.NewImageFromFile(imgPath)
+	img.Resize(fyne.NewSize(size[0], size[1]))
+	container := container.NewWithoutLayout(
+		btn,
+		img,
+	)
+	btn.Resize(fyne.NewSize(size[0], size[1]))
+	container.Move(fyne.NewPos(position[0], position[1]))
+
+	return container
+}
+
+func button(placeHolder string, imgPath string, fn func(path string), path string, size [2]float32, position [2]float32) *fyne.Container {
+	btn := widget.NewButton(placeHolder, func() { fn(path) })
+	img := canvas.NewImageFromFile(imgPath)
+	img.Resize(fyne.NewSize(size[0], size[1]))
+	container := container.NewWithoutLayout(
+		btn,
+		img,
+	)
+	btn.Resize(fyne.NewSize(size[0], size[1]))
+	container.Move(fyne.NewPos(position[0], position[1]))
+
+	return container
+}
+
+func textEntery(size [2]float32, position [2]float32) *widget.Entry {
+	textInput := widget.NewMultiLineEntry()
+	textInput.SetPlaceHolder("Enter text here... n/")
+	textInput.Resize(fyne.NewSize(size[0], size[1]))
+	textInput.Move(fyne.NewPos(position[0], position[1]))
+
+	return textInput
+}
+
+func read(path string) ([]string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var write []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		write = append(write, scanner.Text())
+	}
+	return write, scanner.Err()
+}
+
+func Write(write []string, path string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	w := bufio.NewWriter(file)
+	for _, line := range write {
+		fmt.Fprintln(w, line)
+	}
+	return w.Flush()
+}
+
+func appRun(path string) {
+	extension := strings.Split(path, `.`)
+	if extension[len(extension)-1] == "bat" {
+		cmd := exec.Command("CMD.exe", "/C", path)
+		err := cmd.Run()
+		if err != nil {
+			fmt.Println("Ошибка при запуске команды:", err)
+			return
+		}
+	} else {
+		cmd := exec.Command(path)
+		err := cmd.Run()
+		if err != nil {
+			fmt.Println("Ошибка при запуске команды:", err)
+			return
 		}
 	}
-	itemArray := []fyne.CanvasObject{
-		// button("button", "./public/logo.svg", func() {}, [2]float32{500, 500})
-	}
-	set(itemArray, w.SetContent)
-
-	icon, _ := fyne.LoadResourceFromPath("./public/logo-white.svg")
-	w.SetIcon(icon)
-	w.ShowAndRun()
 }
+
+//C:/Users/zxccurced/AppData/Local/Discord/app-1.0.9209/discord.exe
+//D:/Desktop/zapret-discord-youtube-1.8.4/run.bat
+//C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe
