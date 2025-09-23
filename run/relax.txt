@@ -1,1 +1,3 @@
-CMD.exe", "/C", "D:/Desktop/zapret-discord-youtube-1.8.4/general(ALT2).bat
+C:/Users/zxccurced/AppData/Local/Discord/app-1.0.9209/discord.exe
+D:/Desktop/zapret-discord-youtube-1.8.4/run.bat
+C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe
