@@ -19,14 +19,22 @@ import (
 
 const YBtn = 48
 
+var currentPath = "./run/relax.txt"
+
 func main() {
 	btnSize := [2]float32{120, 120}
 	app := app.New()
 	window := app.NewWindow("apprun-vf")
 	window.Resize(fyne.NewSize(900, 600))
 	window.SetFixedSize(true)
+
+	// ------------------------------------------------- //
+
 	input := textEntery([2]float32{450, 250}, [2]float32{86, 288})
-	currentPath := "./run/relax.txt"
+	inputExample := textEntery([2]float32{245, 180}, [2]float32{569, 288})
+
+	// ------------------------------------------------- //
+
 	selectFunction := func(path string) {
 		currentPath = path
 		content, err := os.ReadFile(path)
@@ -36,21 +44,30 @@ func main() {
 		input.SetText(string(content))
 		fmt.Println(currentPath)
 	}
-	disableInput := func(path string) {
+	disableInput := func() {
 		input.Enable()
 	}
 
 	// ------------------------------------------------- //
 
-	btnSave := button("Сохранить", "", selectFunction, "", [2]float32{120, 40}, [2]float32{86, 214})
-	btnChange := button("Изменить", "", disableInput, "", [2]float32{120, 40}, [2]float32{226, 214})
-	btnRun := button_("Запустить", "", globalAppRun, currentPath, window, [2]float32{120, 40}, [2]float32{689, 499})
+	btnSave := widget.NewButton("Сохранить", func() { write(input.Text) })
+	btnSave.Resize(fyne.NewSize(120, 40))
+	btnSave.Move(fyne.NewPos(86, 214))
+
+	btnChange := widget.NewButton("Изменить", func() { disableInput() })
+	btnChange.Resize(fyne.NewSize(120, 40))
+	btnChange.Move(fyne.NewPos(226, 214))
+
+	btnRun := widget.NewButton("Запустить", func() { globalAppRun(window) })
+	btnRun.Resize(fyne.NewSize(120, 40))
+	btnRun.Move(fyne.NewPos(689, 499))
+
+	// ------------------------------------------------- //
 
 	btnGame := button("", "./public/game#1.svg", selectFunction, "./run/game#1.txt", btnSize, [2]float32{86, YBtn})
 	btnGame_ := button("", "./public/game#2.svg", selectFunction, "./run/game#2.txt", btnSize, [2]float32{251, YBtn})
 	btnWork := button("", "./public/work.svg", selectFunction, "./run/work.txt", btnSize, [2]float32{416, YBtn})
 	btnRelax := button("", "./public/relax.svg", selectFunction, "./run/relax.txt", btnSize, [2]float32{581, YBtn})
-	inputExample := textEntery([2]float32{245, 180}, [2]float32{569, 288})
 
 	// ------------------------------------------------- //
 
@@ -79,32 +96,6 @@ func main() {
 	icon, _ := fyne.LoadResourceFromPath("./public/logo-white.svg")
 	window.SetIcon(icon)
 	window.ShowAndRun()
-}
-
-func globalAppRun(path string, window fyne.Window) {
-	array, err := read(path)
-	if err != nil {
-	}
-
-	for _, path_ := range array {
-		appRun(path_)
-	}
-	fmt.Println("end")
-	window.Close()
-}
-
-func button_(placeHolder string, imgPath string, fn func(path string, window fyne.Window), path string, window fyne.Window, size [2]float32, position [2]float32) *fyne.Container {
-	btn := widget.NewButton(placeHolder, func() { fn(path, window) })
-	img := canvas.NewImageFromFile(imgPath)
-	img.Resize(fyne.NewSize(size[0], size[1]))
-	container := container.NewWithoutLayout(
-		btn,
-		img,
-	)
-	btn.Resize(fyne.NewSize(size[0], size[1]))
-	container.Move(fyne.NewPos(position[0], position[1]))
-
-	return container
 }
 
 func button(placeHolder string, imgPath string, fn func(path string), path string, size [2]float32, position [2]float32) *fyne.Container {
@@ -145,18 +136,30 @@ func read(path string) ([]string, error) {
 	return write, scanner.Err()
 }
 
-func Write(write []string, path string) error {
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+func write(write string) {
+	fmt.Println(currentPath)
+	fmt.Println(write)
+	file, err := os.Create(currentPath)
 
-	w := bufio.NewWriter(file)
-	for _, line := range write {
-		fmt.Fprintln(w, line)
+	if err != nil {
+		fmt.Println("content")
 	}
-	return w.Flush()
+
+	defer file.Close()
+	file.WriteString(write)
+}
+
+func globalAppRun(window fyne.Window) {
+	array, err := read(currentPath)
+	if err != nil {
+	}
+
+	for _, path_ := range array {
+		fmt.Println("run " + path_)
+		appRun(path_)
+	}
+	fmt.Println("--------------------------")
+	window.Close()
 }
 
 func appRun(path string) {
@@ -177,7 +180,3 @@ func appRun(path string) {
 		}
 	}
 }
-
-//C:/Users/zxccurced/AppData/Local/Discord/app-1.0.9209/discord.exe
-//D:/Desktop/zapret-discord-youtube-1.8.4/run.bat
-//C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe
